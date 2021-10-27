@@ -436,16 +436,14 @@ NSString *const AppDelegateUniversalLinkDidChangeNotification = @"AppDelegateUni
     _isAppForeground = NO;
     _handleSelfVerificationRequest = YES;
     
-    // Configure our analytics. It will indeed start if the option is enabled
-    Analytics *analytics = [Analytics sharedInstance];
+    // Configure our analytics. It will start automatically if the option is enabled
+    Analytics *analytics = Analytics.shared;
     [MXSDKOptions sharedInstance].analyticsDelegate = analytics;
-    [DecryptionFailureTracker sharedInstance].delegate = [Analytics sharedInstance];
+    [DecryptionFailureTracker sharedInstance].delegate = analytics;
     
     MXBaseProfiler *profiler = [MXBaseProfiler new];
     profiler.analytics = analytics;
     [MXSDKOptions sharedInstance].profiler = profiler;
-    
-    [analytics start];
 
     self.localAuthenticationService = [[LocalAuthenticationService alloc] initWithPinCodePreferences:[PinCodePreferences shared]];
     
@@ -590,7 +588,7 @@ NSString *const AppDelegateUniversalLinkDidChangeNotification = @"AppDelegateUni
     
     // Analytics: Force to send the pending actions
     [[DecryptionFailureTracker sharedInstance] dispatch];
-    [[Analytics sharedInstance] dispatch];
+    [Analytics.shared forceUpload];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -651,7 +649,8 @@ NSString *const AppDelegateUniversalLinkDidChangeNotification = @"AppDelegateUni
     MXLogDebug(@"[AppDelegate] afterAppUnlockedByPin");
     
     // Check if there is crash log to send
-    if (RiotSettings.shared.enableCrashReport)
+#warning Is this technically analytics or is it mixing the two up?
+    if (Analytics.shared.isRunning)
     {
         [self checkExceptionToReport];
     }
@@ -2227,6 +2226,9 @@ NSString *const AppDelegateUniversalLinkDidChangeNotification = @"AppDelegateUni
     
     //  Reset push notification store
     [self.pushNotificationStore reset];
+    
+    // Reset analytics
+    [Analytics.shared reset];
     
 #ifdef MX_CALL_STACK_ENDPOINT
     // Erase all created certificates and private keys by MXEndpointCallStack
