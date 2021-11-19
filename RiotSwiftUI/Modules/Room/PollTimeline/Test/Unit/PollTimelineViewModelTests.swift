@@ -1,3 +1,5 @@
+// File created from SimpleUserProfileExample
+// $ createScreen.sh Room/PollTimeline PollTimeline
 // 
 // Copyright 2021 New Vector Ltd
 //
@@ -14,18 +16,18 @@
 // limitations under the License.
 //
 
-import Foundation
+import XCTest
+import Combine
 
-/// The static list of mocked screens in RiotSwiftUI
+@testable import RiotSwiftUI
+
 @available(iOS 14.0, *)
-enum MockAppScreens {
-    static let appScreens: [MockScreenState.Type] = [
-        MockTemplateUserProfileScreenState.self,
-        MockTemplateRoomListScreenState.self,
-        MockTemplateRoomChatScreenState.self,
-        MockUserSuggestionScreenState.self,
-        MockPollEditFormScreenState.self,
-        MockPollTimelineScreenState.self
-    ]
+class PollTimelineViewModelTests: XCTestCase {
+    var viewModel: PollTimelineViewModel!
+    var context: PollTimelineViewModelType.Context!
+    var cancellables = Set<AnyCancellable>()
+    
+    override func setUpWithError() throws {
+        context = viewModel.context
+    }
 }
-

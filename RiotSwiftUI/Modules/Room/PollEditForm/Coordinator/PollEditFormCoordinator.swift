@@ -22,6 +22,11 @@ import SwiftUI
 
 struct PollEditFormCoordinatorParameters {
     let navigationRouter: NavigationRouterType?
+    let room: MXRoom
+}
+
+enum Crap: Error {
+    case crap
 }
 
 final class PollEditFormCoordinator: Coordinator {
@@ -60,11 +65,9 @@ final class PollEditFormCoordinator: Coordinator {
     // MARK: - Public
     func start() {
         guard #available(iOS 14.0, *) else {
-            MXLog.debug("[PollEditFormCoordinator] start: Invalid iOS version, returning.")
+            MXLog.error("[PollEditFormCoordinator] start: Invalid iOS version, returning.")
             return
         }
-        
-        MXLog.debug("[PollEditFormCoordinator] did start.")
         
         parameters.navigationRouter?.present(pollEditFormHostingController, animated: true)
         
@@ -73,8 +76,30 @@ final class PollEditFormCoordinator: Coordinator {
             switch result {
             case .cancel:
                 self.parameters.navigationRouter?.dismissModule(animated: true, completion: nil)
-            case .create(_, _):
-                break
+            case .create(let question, let answerOptions):
+                var options = [MXEventContentPollStartAnswerOption]()
+                for answerOption in answerOptions {
+                    options.append(MXEventContentPollStartAnswerOption(uuid: UUID().uuidString, text: answerOption))
+                }
+                
+                let pollStartContent = MXEventContentPollStart(question: question,
+                                                               kind: kMXMessageContentKeyExtensiblePollKindDisclosed,
+                                                               maxSelections: 1,
+                                                               answerOptions: options)
+                
+                self.pollEditFormViewModel.dispatch(action: .startLoading)
+                
+                self.parameters.room.sendPollStart(withContent: pollStartContent, localEcho: nil) { [weak self] result in
+                    guard let self = self else { return }
+                    
+                    self.parameters.navigationRouter?.dismissModule(animated: true, completion: nil)
+                    self.pollEditFormViewModel.dispatch(action: .stopLoading(nil))
+                } failure: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    MXLog.error("Failed creating poll with error: \(String(describing: error))")
+                    self.pollEditFormViewModel.dispatch(action: .stopLoading(error))
+                }
             }
         }
     }
