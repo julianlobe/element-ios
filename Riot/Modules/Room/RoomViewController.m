@@ -567,7 +567,7 @@ const NSTimeInterval kResizeComposerAnimationDuration = .05;
     [super viewWillAppear:animated];
     
     // Screen tracking
-    [Analytics.shared trackScreen:@"ChatRoom"];
+    [Analytics.shared trackScreen:AnalyticsScreenRoom];
     
     // Refresh the room title view
     [self refreshRoomTitle];

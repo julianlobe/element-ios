@@ -308,9 +308,6 @@ static const CGFloat kAuthInputContainerViewMinHeightConstraintConstant = 150.0;
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
-    // Screen tracking
-    [Analytics.shared trackScreen:@"Authentication"];
     
     [_keyboardAvoider startAvoiding];
 }
