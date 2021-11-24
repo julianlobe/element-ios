@@ -46,3 +46,4 @@
 #import "RoomInputToolbarView.h"
 #import "NSArray+Element.h"
 #import "ShareItemSender.h"
+#import "DecryptionFailure.h"
