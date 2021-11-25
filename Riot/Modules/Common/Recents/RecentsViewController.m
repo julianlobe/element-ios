@@ -258,9 +258,6 @@ NSString *const RecentsViewControllerDataReadyNotification = @"RecentsViewContro
 {
     [super viewWillAppear:animated];
 
-    // Screen tracking
-    [Analytics.shared trackScreen:AnalyticsScreenHome];
-
     // Reset back user interactions
     self.userInteractionEnabled = YES;
     
